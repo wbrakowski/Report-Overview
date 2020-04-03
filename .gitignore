@@ -1,0 +1,20 @@
+## --- AL gitignore ---
+## Ignores generated binary files and 
+## temporary files from Visual Studio and Visual Studio code
+
+# Binary files
+.alpackages/
+*.app
+# Temp files
+.vs/
+#.vscode/
+
+# Others
+~$*
+*~
+.alcache/cache_e51e5367a7f42af3a86b9d2f4564b480f0d473dd389b0dae3040114b6d109e9a.json
+.alcache/cache_e51e5367a7f42af3a86b9d2f4564b480f0d473dd389b0dae3040114b6d109e9aevents.json
+.alcache/cache_f98fd4983283c1a973371fc935a4a71b01b541aa73675aa6baf433f70fd4da74.json
+.alcache/cache_f98fd4983283c1a973371fc935a4a71b01b541aa73675aa6baf433f70fd4da74events.json
+src/GetNextID
+.vscode/launch.json
