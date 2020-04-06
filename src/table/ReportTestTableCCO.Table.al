@@ -1,4 +1,4 @@
-table 50100 "CCO Report Test Table"
+table 50100 "Report Test Table CCO"
 {
     DataClassification = ToBeClassified;
 
@@ -50,6 +50,29 @@ table 50100 "CCO Report Test Table"
             Caption = 'Attachment Upload at';
             DataClassification = ToBeClassified;
         }
+        field(60; "Company Name"; Text[50])
+        {
+            Caption = 'Company Name';
+            DataClassification = ToBeClassified;
+        }
+
+        field(70; "Test Filter 1"; Text[50])
+        {
+            Caption = 'Test Filter 1';
+            TableRelation = "Object Options" where("Object Type" = filter(Report), "Object ID" = field("Report ID"), "Company Name" = field("Company Name"));
+        }
+        field(71; "Test Filter 2"; Text[50])
+        {
+            Caption = 'Test Filter 2';
+            TableRelation = "Object Options" where("Object Type" = filter(Report), "Object ID" = field("Report ID"), "Company Name" = field("Company Name"));
+        }
+        field(72; "Test Filter 3"; Text[50])
+        {
+            Caption = 'Test Filter 3';
+            TableRelation = "Object Options" where("Object Type" = filter(Report), "Object ID" = field("Report ID"), "Company Name" = field("Company Name"));
+        }
+
+
 
 
     }
@@ -64,7 +87,7 @@ table 50100 "CCO Report Test Table"
 
     procedure FillTable()
     var
-        CCOReportTestTable: Record "CCO Report Test Table";
+        CCOReportTestTable: Record "Report Test Table CCO";
         ReportSelections: Record "Report Selections";
         AllObjWithCaption: Record AllObjWithCaption;
     begin
@@ -88,6 +111,7 @@ table 50100 "CCO Report Test Table"
                     CCOReportTestTable."Report ID" := ReportSelections."Report ID";
                     CCOReportTestTable."Page No." := GetPageNo(ReportSelections.Usage);
                     CCOReportTestTable."In Report Selection" := true;
+                    CCOReportTestTable."Company Name" := CompanyName;
                     CCOReportTestTable.Insert();
                 end;
             until ReportSelections.Next() = 0;
@@ -99,6 +123,7 @@ table 50100 "CCO Report Test Table"
                 if not CCOReportTestTable.Get(AllObjWithCaption."Object ID") then begin
                     CCOReportTestTable.Init();
                     CCOReportTestTable."Report ID" := AllObjWithCaption."Object ID";
+                    CCOReportTestTable."Company Name" := CompanyName;
                     CCOReportTestTable.Insert();
                 end;
             until AllObjWithCaption.Next() = 0;
@@ -136,7 +161,7 @@ table 50100 "CCO Report Test Table"
 
     procedure UploadAttachment()
     var
-        CCOFileAttachmentHandling: Codeunit "CCO File Attachment Handling";
+        CCOFileAttachmentHandling: Codeunit "File Attachment Handling CCO";
         AttachmentNo: Integer;
     begin
         AttachmentNo := CCOFileAttachmentHandling.UploadAttachment();
@@ -149,10 +174,21 @@ table 50100 "CCO Report Test Table"
 
     procedure OpenAttachment()
     var
-        CCOFileAttachmentHandling: Codeunit "CCO File Attachment Handling";
+        CCOFileAttachmentHandling: Codeunit "File Attachment Handling CCO";
     begin
         if "Attachment No." <> 0 then
             CCOFileAttachmentHandling.OpenAttachment("Attachment No.");
+    end;
+
+    procedure OpenReportSettings()
+    var
+        ObjectOptions: Record "Object Options";
+    begin
+        ObjectOptions.SetRange("Object ID", "Report ID");
+        ObjectOptions.SetRange("Object Type", ObjectOptions."Object Type"::Report);
+        ObjectOptions.SetRange("Company Name", CompanyName);
+        ObjectOptions.SetRange("User Name", UserId);
+        Page.Run(Page::"Report Settings", ObjectOptions);
     end;
 
 }

@@ -1,11 +1,11 @@
-codeunit 50100 "CCO File Attachment Handling"
+codeunit 50100 "File Attachment Handling CCO"
 {
 
     procedure OpenAttachment(AttachmentNo: Integer)
     var
-        Attachment: record Attachment;
+        Attachment: Record Attachment;
         ResponseStream: InStream;
-        TempFilename: text;
+        TempFilename: Text;
         AttachmentErr: Label 'No file available.';
     begin
         if Attachment.get(AttachmentNo) then
@@ -23,7 +23,7 @@ codeunit 50100 "CCO File Attachment Handling"
         Attachment: Record Attachment;
         FileOutStream: OutStream;
         FileInStream: InStream;
-        TempFilename: text;
+        TempFilename: Text;
         DialogTitle: Label 'Please select a File...';
     begin
         if UploadIntoStream(DialogTitle, '', 'All Files (*.*)|*.*', TempFilename, FileInStream) then begin

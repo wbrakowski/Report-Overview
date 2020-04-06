@@ -1,10 +1,10 @@
 
-page 50100 "CCO Report Test Page"
+page 50100 "Report Test Page CCO"
 {
     PageType = Card;
     ApplicationArea = All;
     UsageCategory = Administration;
-    SourceTable = "CCO Report Test Table";
+    SourceTable = "Report Test Table CCO";
     Caption = 'Report Test Page';
     layout
     {
@@ -74,7 +74,18 @@ page 50100 "CCO Report Test Page"
                 {
                     ApplicationArea = All;
                 }
-
+                field("Test Filter 1"; "Test Filter 1")
+                {
+                    ApplicationArea = All;
+                }
+                field("Test Filter 2"; "Test Filter 2")
+                {
+                    ApplicationArea = All;
+                }
+                field("Test Filter 3"; "Test Filter 3")
+                {
+                    ApplicationArea = All;
+                }
             }
         }
     }
@@ -139,7 +150,22 @@ page 50100 "CCO Report Test Page"
                     OpenAttachment;
                 end;
             }
-            action("Open Page")
+            action(OpenReportSettings)
+            {
+                ApplicationArea = All;
+                Promoted = true;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                PromotedCategory = Process;
+                Image = Open;
+                Caption = 'Open Report Settings';
+                trigger OnAction()
+
+                begin
+                    OpenReportSettings;
+                end;
+            }
+            action(OpenPage)
             {
                 ApplicationArea = All;
                 Promoted = true;
