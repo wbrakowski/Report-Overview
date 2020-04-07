@@ -179,6 +179,28 @@ page 50100 "Report Test Page CCO"
                     Page.Run("Page No.");
                 end;
             }
+            action(OpenReportSelectionSales)
+            {
+                ApplicationArea = All;
+                Promoted = true;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                PromotedCategory = Process;
+                RunObject = Page "Report Selection - Sales";
+                Image = Table;
+                Caption = 'Open Report Selection Sales';
+            }
+              action(OpenReportSelectionPurchase)
+            {
+                ApplicationArea = All;
+                Promoted = true;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                PromotedCategory = Process;
+                RunObject = Page "Report Selection - Purchase";
+                Image = Table;
+                Caption = 'Open Report Selection Sales';
+            }
         }
     }
 
