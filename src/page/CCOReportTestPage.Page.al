@@ -1,10 +1,10 @@
 
-page 50100 "Report Test Page CCO"
+page 50100 "CCO Report Test Page"
 {
     PageType = Card;
     ApplicationArea = All;
     UsageCategory = Administration;
-    SourceTable = "Report Test Table CCO";
+    SourceTable = "CCO Report Test Table";
     Caption = 'Report Test Page';
     layout
     {
@@ -17,7 +17,7 @@ page 50100 "Report Test Page CCO"
                 TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Report));
                 trigger OnValidate();
                 begin
-                    CustomReportCaption := GetCustomReportCaption(CustomReportNo);
+                    CustomReportCaption := CCOReportTestMgt.GetCustomReportCaption(CustomReportNo);
                 end;
             }
             field(CustomReportCaption; CustomReportCaption)
@@ -40,10 +40,21 @@ page 50100 "Report Test Page CCO"
                     Editable = false;
                     StyleExpr = StyleTxt;
                 }
-                field("Page No."; "Page No.")
+                field("List Page No."; "List Page No.")
                 {
                     ApplicationArea = All;
                     StyleExpr = StyleTxt;
+                }
+                field("Card Page No."; "Card Page No.")
+                {
+                    ApplicationArea = All;
+                    StyleExpr = StyleTxt;
+                }
+                field("Test Information"; "Test Information")
+                {
+                    ApplicationArea = All;
+                    StyleExpr = StyleTxt;
+                    MultiLine = true;
                 }
                 field(Tested; Tested)
                 {
@@ -87,6 +98,13 @@ page 50100 "Report Test Page CCO"
                     ApplicationArea = All;
                 }
             }
+            part(CCOReportSelectionsSubpage; "CCO Report Selections Subpage")
+            {
+                ApplicationArea = Basic;
+                Editable = true;
+                ShowFilter = true;
+            }
+            // TODO PART
         }
     }
 
@@ -132,7 +150,7 @@ page 50100 "Report Test Page CCO"
                 trigger OnAction()
 
                 begin
-                    UploadAttachment;
+                    CCOReportTestMgt.UploadAttachment(Rec);
                 end;
             }
             action(OpenAttachment)
@@ -147,7 +165,7 @@ page 50100 "Report Test Page CCO"
                 trigger OnAction()
 
                 begin
-                    OpenAttachment;
+                    CCOReportTestMgt.OpenAttachment("Attachment No.");
                 end;
             }
             action(OpenReportSettings)
@@ -162,10 +180,10 @@ page 50100 "Report Test Page CCO"
                 trigger OnAction()
 
                 begin
-                    OpenReportSettings;
+                    CCOReportTestMgt.OpenReportSettings("Report ID");
                 end;
             }
-            action(OpenPage)
+            action(OpenCardPage)
             {
                 ApplicationArea = All;
                 Promoted = true;
@@ -173,10 +191,24 @@ page 50100 "Report Test Page CCO"
                 PromotedOnly = true;
                 PromotedCategory = Process;
                 Image = Table;
-                Caption = 'Open Page';
+                Caption = 'Open Card Page';
                 trigger OnAction()
                 begin
-                    Page.Run("Page No.");
+                    Page.Run("Card Page No.");
+                end;
+            }
+            action(OpenListPage)
+            {
+                ApplicationArea = All;
+                Promoted = true;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                PromotedCategory = Process;
+                Image = Table;
+                Caption = 'Open List Page';
+                trigger OnAction()
+                begin
+                    Page.Run("List Page No.");
                 end;
             }
             action(OpenReportSelectionSales)
@@ -190,7 +222,7 @@ page 50100 "Report Test Page CCO"
                 Image = Table;
                 Caption = 'Open Report Selection Sales';
             }
-              action(OpenReportSelectionPurchase)
+            action(OpenReportSelectionPurchase)
             {
                 ApplicationArea = All;
                 Promoted = true;
@@ -199,12 +231,24 @@ page 50100 "Report Test Page CCO"
                 PromotedCategory = Process;
                 RunObject = Page "Report Selection - Purchase";
                 Image = Table;
-                Caption = 'Open Report Selection Sales';
+                Caption = 'Open Report Selection Purchase';
+            }
+            action(OpenCompanyInfo)
+            {
+                ApplicationArea = All;
+                Promoted = true;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                PromotedCategory = Process;
+                RunObject = Page "Company Information";
+                Image = Table;
+                Caption = 'Open Company Information';
             }
         }
     }
 
     var
+        CCOReportTestMgt: Codeunit "CCO Report Test Mgt.";
         CustomReportNo: Integer;
         CustomReportCaption: Text[250];
         StyleTxt: Text[30];
@@ -212,7 +256,7 @@ page 50100 "Report Test Page CCO"
 
     trigger OnOpenPage()
     begin
-        FillTable();
+        CCOReportTestMgt.FillTestTable();
     end;
 
     trigger OnAfterGetRecord()
@@ -221,15 +265,7 @@ page 50100 "Report Test Page CCO"
     end;
 
 
-    local procedure GetCustomReportCaption(ReportNo: Integer): Text[249];
-    var
-        AllObjWithCaption: Record AllObjWithCaption;
-    begin
-        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, CustomReportNo) then
-            exit(AllObjWithCaption."Object Caption")
-        else
-            exit('');
-    end;
+
 
     local procedure RunCustomReport(ReportNo: Integer)
     var

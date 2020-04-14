@@ -1,4 +1,4 @@
-Report 50101 "TestReport2 CCO"
+Report 50101 "CCO Purchase Order"
 {
     dataset
     {

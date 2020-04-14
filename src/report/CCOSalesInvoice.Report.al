@@ -1,4 +1,4 @@
-report 50100 "TestReport1 CCO"
+report 50100 "CCO Sales Invoice"
 {
     dataset
     {
