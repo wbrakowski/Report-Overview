@@ -1,4 +1,4 @@
-page 50101 "CCO Report Selections Subpage"
+page 50101 "Report Selections Subpage"
 {
 
     PageType = ListPart;
@@ -87,15 +87,15 @@ page 50101 "CCO Report Selections Subpage"
     }
 
     var
-        CCOReportTestMgt: Codeunit "CCO Report Test Mgt.";
+        ReportTestMgt: Codeunit "Report Test Mgt.";
         ListPageNo: Integer;
         CardPageNo: Integer;
 
 
     trigger OnAfterGetRecord()
     begin
-        CardPageNo := CCOReportTestMgt.GetCardPageNo(Usage);
-        ListPageNo := CCOReportTestMgt.GetListPageNo(Usage);
+        CardPageNo := ReportTestMgt.GetCardPageNo(Usage);
+        ListPageNo := ReportTestMgt.GetListPageNo(Usage);
     end;
 
 

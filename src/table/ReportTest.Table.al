@@ -1,6 +1,8 @@
-table 50100 "CCO Report Test Table"
+table 50100 "Report Test"
 {
     DataClassification = ToBeClassified;
+    LookupPageId = "Report Test Card";
+    DrillDownPageId = "Report Test Card";
 
     fields
     {
@@ -74,10 +76,12 @@ table 50100 "CCO Report Test Table"
             DataClassification = ToBeClassified;
             Caption = 'Test Information';
         }
-
-
-
-
+        field(90; "Test Questionnaire Code"; Code[20])
+        {
+            Caption = 'Test Questionnaire Code';
+            NotBlank = true;
+            TableRelation = "Test Questionnaire Header";
+        }
     }
 
     keys

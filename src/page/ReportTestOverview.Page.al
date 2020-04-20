@@ -1,11 +1,13 @@
 
-page 50100 "CCO Report Test Page"
+page 50100 "Report Test Overview"
 {
     PageType = Card;
     ApplicationArea = All;
     UsageCategory = Administration;
-    SourceTable = "CCO Report Test Table";
-    Caption = 'Report Test Page';
+    SourceTable = "Report Test";
+    Caption = 'Report Test Overview';
+    PromotedActionCategories = 'New, Process, Report, Attachment, Settings';
+
     layout
     {
         area(Content)
@@ -17,7 +19,7 @@ page 50100 "CCO Report Test Page"
                 TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Report));
                 trigger OnValidate();
                 begin
-                    CustomReportCaption := CCOReportTestMgt.GetCustomReportCaption(CustomReportNo);
+                    CustomReportCaption := ReportTestMgt.GetCustomReportCaption(CustomReportNo);
                 end;
             }
             field(CustomReportCaption; CustomReportCaption)
@@ -84,6 +86,7 @@ page 50100 "CCO Report Test Page"
                 field("Attachment Upload at"; "Attachment Upload at")
                 {
                     ApplicationArea = All;
+                    Editable = false;
                 }
                 field("Test Filter 1"; "Test Filter 1")
                 {
@@ -98,7 +101,7 @@ page 50100 "CCO Report Test Page"
                     ApplicationArea = All;
                 }
             }
-            part(CCOReportSelectionsSubpage; "CCO Report Selections Subpage")
+            part(ReportSelectionsSubpage; "Report Selections Subpage")
             {
                 ApplicationArea = Basic;
                 Editable = true;
@@ -138,49 +141,58 @@ page 50100 "CCO Report Test Page"
                     RunCustomReport(CustomReportNo);
                 end;
             }
-            action(UploadAttachment)
-            {
-                ApplicationArea = All;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
-                Image = Import;
-                Caption = 'Upload Attachment';
-                trigger OnAction()
-
-                begin
-                    CCOReportTestMgt.UploadAttachment(Rec);
-                end;
-            }
-            action(OpenAttachment)
-            {
-                ApplicationArea = All;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
-                Image = Open;
-                Caption = 'Open Attachment';
-                trigger OnAction()
-
-                begin
-                    CCOReportTestMgt.OpenAttachment("Attachment No.");
-                end;
-            }
+        }
+        area(Navigation)
+        {
             action(OpenReportSettings)
             {
                 ApplicationArea = All;
                 Promoted = true;
                 PromotedIsBig = true;
                 PromotedOnly = true;
-                PromotedCategory = Process;
+                PromotedCategory = Category5;
                 Image = Open;
                 Caption = 'Open Report Settings';
                 trigger OnAction()
 
                 begin
-                    CCOReportTestMgt.OpenReportSettings("Report ID");
+                    ReportTestMgt.OpenReportSettings("Report ID");
+                end;
+            }
+            action(OpenReportSelectionSales)
+            {
+                ApplicationArea = All;
+                Promoted = true;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                PromotedCategory = Category5;
+                RunObject = Page "Report Selection - Sales";
+                Image = Table;
+                Caption = 'Open Report Selection Sales';
+            }
+            action(OpenReportSelectionPurchase)
+            {
+                ApplicationArea = All;
+                Promoted = true;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                PromotedCategory = Category5;
+                RunObject = Page "Report Selection - Purchase";
+                Image = Table;
+                Caption = 'Open Report Selection Purchase';
+            }
+            action(OpenTestCard)
+            {
+                ApplicationArea = All;
+                Promoted = true;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                PromotedCategory = Process;
+                Image = Card;
+                Caption = 'Test Card';
+                trigger OnAction()
+                begin
+                    Page.Run(Page::"Report Test Card");
                 end;
             }
             action(OpenCardPage)
@@ -211,44 +223,52 @@ page 50100 "CCO Report Test Page"
                     Page.Run("List Page No.");
                 end;
             }
-            action(OpenReportSelectionSales)
-            {
-                ApplicationArea = All;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
-                RunObject = Page "Report Selection - Sales";
-                Image = Table;
-                Caption = 'Open Report Selection Sales';
-            }
-            action(OpenReportSelectionPurchase)
-            {
-                ApplicationArea = All;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
-                RunObject = Page "Report Selection - Purchase";
-                Image = Table;
-                Caption = 'Open Report Selection Purchase';
-            }
             action(OpenCompanyInfo)
             {
                 ApplicationArea = All;
                 Promoted = true;
                 PromotedIsBig = true;
                 PromotedOnly = true;
-                PromotedCategory = Process;
+                PromotedCategory = Category5;
                 RunObject = Page "Company Information";
                 Image = Table;
                 Caption = 'Open Company Information';
+            }
+
+        }
+        area(Processing)
+        {
+            action(UploadAttachment)
+            {
+                ApplicationArea = All;
+                Promoted = true;
+                PromotedCategory = Category4;
+                Image = Import;
+                Caption = 'Upload Attachment';
+                trigger OnAction()
+
+                begin
+                    ReportTestMgt.UploadAttachment(Rec);
+                end;
+            }
+            action(OpenAttachment)
+            {
+                ApplicationArea = All;
+                Promoted = true;
+                PromotedCategory = Category4;
+                Image = Open;
+                Caption = 'Open Attachment';
+                trigger OnAction()
+
+                begin
+                    ReportTestMgt.OpenAttachment("Attachment No.");
+                end;
             }
         }
     }
 
     var
-        CCOReportTestMgt: Codeunit "CCO Report Test Mgt.";
+        ReportTestMgt: Codeunit "Report Test Mgt.";
         CustomReportNo: Integer;
         CustomReportCaption: Text[250];
         StyleTxt: Text[30];
@@ -256,7 +276,7 @@ page 50100 "CCO Report Test Page"
 
     trigger OnOpenPage()
     begin
-        CCOReportTestMgt.FillTestTable();
+        ReportTestMgt.FillTestTable();
     end;
 
     trigger OnAfterGetRecord()

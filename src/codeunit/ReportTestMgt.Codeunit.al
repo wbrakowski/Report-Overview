@@ -1,4 +1,4 @@
-codeunit 50100 "CCO Report Test Mgt."
+codeunit 50100 "Report Test Mgt."
 {
 
     procedure OpenAttachment(AttachmentNo: Integer)
@@ -58,15 +58,15 @@ codeunit 50100 "CCO Report Test Mgt."
         exit(CopyStr(FileName, FilenamePos + 1, StrLen(FileName)));
     end;
 
-    procedure UploadAttachment(var CCOReportTestTable: Record "CCO Report Test Table")
+    procedure UploadAttachment(var ReportTest: Record "Report Test")
     var
         AttachmentNo: Integer;
     begin
         AttachmentNo := UploadAttachment();
         if AttachmentNo <> 0 then begin
-            CCOReportTestTable."Attachment No." := AttachmentNo;
-            CCOReportTestTable."Attachment Upload at" := CurrentDateTime();
-            CCOReportTestTable.Modify();
+            ReportTest."Attachment No." := AttachmentNo;
+            ReportTest."Attachment Upload at" := CurrentDateTime();
+            ReportTest.Modify();
         end;
     end;
 
@@ -85,7 +85,7 @@ codeunit 50100 "CCO Report Test Mgt."
 
     procedure FillTestTable()
     var
-        CCOReportTestTable: Record "CCO Report Test Table";
+        ReportTest: Record "Report Test";
         AllObjWithCaption: Record AllObjWithCaption;
     begin
         with AllObjWithCaption do begin
@@ -93,11 +93,11 @@ codeunit 50100 "CCO Report Test Mgt."
             SetRange("Object ID", 50000, 100000);
             if FindSet() then
                 repeat
-                    if not CCOReportTestTable.Get("Object ID") then begin
-                        CCOReportTestTable.Init();
-                        CCOReportTestTable."Report ID" := "Object ID";
-                        CCOReportTestTable."Company Name" := CompanyName;
-                        CCOReportTestTable.Insert();
+                    if not ReportTest.Get("Object ID") then begin
+                        ReportTest.Init();
+                        ReportTest."Report ID" := "Object ID";
+                        ReportTest."Company Name" := CompanyName;
+                        ReportTest.Insert();
                     end;
                 until Next() = 0;
         end;
