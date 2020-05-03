@@ -1,9 +1,9 @@
-page 50104 "Test Questionnaires"
+page 50104 "Report Test Questionnaires"
 {
     ApplicationArea = RelationshipMgmt;
     Caption = 'Test Questionnaires Setup';
     PageType = List;
-    SourceTable = "Test Questionnaire Header";
+    SourceTable = "Report Test Questionnaire Hdr.";
     UsageCategory = Administration;
 
     layout
@@ -39,7 +39,7 @@ page 50104 "Test Questionnaires"
                 Image = Setup;
                 Promoted = true;
                 PromotedCategory = Process;
-                RunObject = Page "Test Questionnaire Card";
+                RunObject = Page "Report Test Questionnaire Card";
                 RunPageLink = "Test Questionnaire Code" = FIELD(Code);
                 ShortCutKey = 'Return';
                 ToolTip = 'Modify how the questionnaire is set up.';

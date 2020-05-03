@@ -190,10 +190,8 @@ page 50100 "Report Test Overview"
                 PromotedCategory = Process;
                 Image = Card;
                 Caption = 'Test Card';
-                trigger OnAction()
-                begin
-                    Page.Run(Page::"Report Test Card");
-                end;
+                RunObject = Page "Report Test Card";
+                RunPageLink = "Report ID" = field("Report ID");
             }
             action(OpenCardPage)
             {

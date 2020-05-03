@@ -44,6 +44,10 @@ page 50102 "Report Test Card"
             }
             group(Test)
             {
+                field("Test Questionnaire Code"; "Test Questionnaire Code")
+                {
+                    ApplicationArea = All;
+                }
                 field("Test Filter 1"; "Test Filter 1")
                 {
                     ApplicationArea = All;
@@ -72,13 +76,28 @@ page 50102 "Report Test Card"
             group(Checklist)
             {
             }
-            part("Test Questionnaire"; "Test Card Subform")
+            part("Test Questionnaire"; "Report Test Card Subform")
             {
                 ApplicationArea = RelationshipMgmt;
                 Caption = 'Test Questionnaire';
-                SubPageLink = "Report ID" = FIELD("Report ID");
+                SubPageLink = "Report ID" = field("Report ID");
             }
         }
     }
+
+    actions 
+    {
+        // action(ShowTestQuestionnaireCard)
+        // {
+        //     ApplicationArea = All;
+            
+        //     trigger OnAction()
+        //     begin
+        //       Show  
+        //     end;
+        // }
+    }
+
+    
 
 }

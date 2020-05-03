@@ -30,16 +30,7 @@ table 50100 "Report Test"
             DataClassification = ToBeClassified;
         }
 
-        field(30; Tested; Boolean)
-        {
-            Caption = 'Tested';
-            DataClassification = ToBeClassified;
-        }
-        field(40; "Test OK"; Boolean)
-        {
-            Caption = 'Test OK';
-            DataClassification = ToBeClassified;
-        }
+
         field(50; "Attachment No."; Integer)
         {
             Caption = 'Attachment No.';
@@ -71,16 +62,30 @@ table 50100 "Report Test"
             Caption = 'Test Filter 3';
             TableRelation = "Object Options" where("Object Type" = filter(Report), "Object ID" = field("Report ID"), "Company Name" = field("Company Name"));
         }
-        field(80; "Test Information"; Text[250])
+        field(73; "Test Information"; Text[250])
         {
             DataClassification = ToBeClassified;
             Caption = 'Test Information';
         }
-        field(90; "Test Questionnaire Code"; Code[20])
+        field(74; Tested; Boolean)
+        {
+            Caption = 'Tested';
+            DataClassification = ToBeClassified;
+        }
+        field(75; "Test OK"; Boolean)
+        {
+            Caption = 'Test OK';
+            DataClassification = ToBeClassified;
+        }
+        field(80; "Test Questionnaire Code"; Code[20])
         {
             Caption = 'Test Questionnaire Code';
             NotBlank = true;
-            TableRelation = "Test Questionnaire Header";
+            TableRelation = "Report Test Questionnaire Hdr.";
+            trigger OnValidate();
+            begin
+                ValidateTestQuestionnaireCode();
+            end;
         }
     }
 
@@ -96,4 +101,23 @@ table 50100 "Report Test"
     begin
         exit("Attachment No." <> 0);
     end;
+
+    local procedure ValidateTestQuestionnaireCode()
+    var
+        QuestionLine: Record "Report Test Questionnaire Line";
+        ReportTestAnswer: Record "Report Test Answer";
+    begin
+        QuestionLine.SetRange("Test Questionnaire Code", Rec."Test Questionnaire Code");
+        QuestionLine.SetRange(Type, QuestionLine.Type::Question);
+        if QuestionLine.FindSet() then
+            repeat
+                ReportTestAnswer.Init();
+                ReportTestAnswer."Test Questionnaire Code" := QuestionLine."Test Questionnaire Code";
+                ReportTestAnswer."Report ID" := Rec."Report ID";
+                ReportTestAnswer."Line No." := QuestionLine."Line No.";
+                ReportTestAnswer.Insert();
+            until QuestionLine.Next() = 0;
+    end;
+
+
 }

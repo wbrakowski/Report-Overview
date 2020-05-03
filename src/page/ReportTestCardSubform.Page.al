@@ -1,13 +1,12 @@
-page 50105 "Test Card Subform"
+page 50105 "Report Test Card Subform"
 {
     Caption = 'Lines';
-    Editable = false;
     LinksAllowed = false;
     PageType = ListPart;
-    SourceTable = "Test Answer";
+    InsertAllowed = false;
+    SourceTable = "Report Test Answer";
     SourceTableView = SORTING("Report ID", "Answer Priority", "Test Questionnaire Priority")
-                      ORDER(Descending)
-                      WHERE("Answer Priority" = FILTER(<> "Very Low (Hidden)"));
+                      ORDER(Descending);
 
     layout
     {
@@ -48,13 +47,5 @@ page 50105 "Test Card Subform"
             }
         }
     }
-
-    actions
-    {
-    }
-
-    var
-        Text001: Label 'There are no answer values for this rating answer.';
-        Text002: Label 'This answer reflects the state of the contact on %1 when the Update Contact Class. batch job was run.\To make the answer reflect the current state of the contact, run the batch job again.';
 }
 

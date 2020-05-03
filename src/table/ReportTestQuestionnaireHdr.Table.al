@@ -1,4 +1,4 @@
-table 50101 "Test Questionnaire Header"
+table 50101 "Report Test Questionnaire Hdr."
 {
     Caption = 'Test Questionnaire Header';
     DataCaptionFields = "Code", Description;
@@ -12,11 +12,11 @@ table 50101 "Test Questionnaire Header"
             Caption = 'Code';
             NotBlank = true;
         }
-        field(2; Description; Text[250])
+        field(10; Description; Text[250])
         {
             Caption = 'Description';
         }
-        field(3; "Report ID"; Integer)
+        field(11; "Report ID"; Integer)
         {
             Caption = 'Report ID';
             DataClassification = ToBeClassified;

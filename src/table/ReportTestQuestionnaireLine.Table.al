@@ -1,4 +1,4 @@
-table 50102 "Test Questionnaire Line"
+table 50102 "Report Test Questionnaire Line"
 {
     Caption = 'Test Questionnaire Line';
     DataCaptionFields = "Test Questionnaire Code", Description;
@@ -9,7 +9,7 @@ table 50102 "Test Questionnaire Line"
         field(1; "Test Questionnaire Code"; Code[20])
         {
             Caption = 'Profile Questionnaire Code';
-            TableRelation = "Test Questionnaire Header";
+            TableRelation = "Report Test Questionnaire Hdr.";
         }
         field(2; "Line No."; Integer)
         {
@@ -35,7 +35,7 @@ table 50102 "Test Questionnaire Line"
 
             trigger OnValidate()
             var
-                TestAnswer: Record "Test Answer";
+                TestAnswer: Record "Report Test Answer";
             begin
                 TestField(Type, Type::Answer);
                 TestAnswer.SetCurrentKey("Test Questionnaire Code", "Line No.");
@@ -49,11 +49,12 @@ table 50102 "Test Questionnaire Line"
         {
             Caption = 'Answer Description';
         }
+
     }
 
     keys
     {
-        key(Key1; "Test Questionnaire Code", "Line No.")
+        key(Key1; "Test Questionnaire Code", Type, "Line No.")
         {
             Clustered = true;
         }
@@ -62,7 +63,7 @@ table 50102 "Test Questionnaire Line"
 
     trigger OnDelete()
     var
-        TestQuestionnaireLine: Record "Test Questionnaire Line";
+        TestQuestionnaireLine: Record "Report Test Questionnaire Line";
         AnswersExistErr: Label 'You cannot delete this question while answers exists.';
     begin
         if Type = Type::Question then begin
@@ -75,7 +76,7 @@ table 50102 "Test Questionnaire Line"
     end;
 
     var
-        TestQuestnLine: Record "Test Questionnaire Line";
+        TestQuestnLine: Record "Report Test Questionnaire Line";
         TempProfileQuestionnaireLine: Record "Profile Questionnaire Line" temporary;
         ZeroDateFormula: DateFormula;
         Text000: Label 'Do you want to delete the rating values?';
@@ -92,17 +93,17 @@ table 50102 "Test Questionnaire Line"
 
     procedure MoveUp()
     var
-        UpperTestQuestnLine: Record "Test Questionnaire Line";
+        UpperTestQuestnLine: Record "Report Test Questionnaire Line";
         LineNo: Integer;
         UpperRecLineNo: Integer;
     begin
-        TestField(Type, Type::Answer);
+        TestField(Type, Type::Question);
         UpperTestQuestnLine.SetRange("Test Questionnaire Code", "Test Questionnaire Code");
         LineNo := "Line No.";
         UpperTestQuestnLine.Get("Test Questionnaire Code", "Line No.");
 
         if UpperTestQuestnLine.Find('<') and
-           (UpperTestQuestnLine.Type = UpperTestQuestnLine.Type::Answer)
+           (UpperTestQuestnLine.Type = UpperTestQuestnLine.Type::Question)
         then begin
             UpperRecLineNo := UpperTestQuestnLine."Line No.";
             Rename("Test Questionnaire Code", -1);
@@ -113,17 +114,17 @@ table 50102 "Test Questionnaire Line"
 
     procedure MoveDown()
     var
-        LowerTestQuestnLine: Record "Test Questionnaire Line";
+        LowerTestQuestnLine: Record "Report Test Questionnaire Line";
         LineNo: Integer;
         LowerRecLineNo: Integer;
     begin
-        TestField(Type, Type::Answer);
+        TestField(Type, Type::Question);
         LowerTestQuestnLine.SetRange("Test Questionnaire Code", "Test Questionnaire Code");
         LineNo := "Line No.";
         LowerTestQuestnLine.Get("Test Questionnaire Code", "Line No.");
 
         if LowerTestQuestnLine.Find('>') and
-           (LowerTestQuestnLine.Type = LowerTestQuestnLine.Type::Answer)
+           (LowerTestQuestnLine.Type = LowerTestQuestnLine.Type::Question)
         then begin
             LowerRecLineNo := LowerTestQuestnLine."Line No.";
             Rename("Test Questionnaire Code", -1);

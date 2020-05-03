@@ -1,4 +1,4 @@
-page 50103 "Test Questionnaire Card"
+page 50103 "Report Test Questionnaire Card"
 {
     AutoSplitKey = true;
     Caption = 'Test Questionnaire Card';
@@ -6,7 +6,7 @@ page 50103 "Test Questionnaire Card"
     PageType = List;
     PromotedActionCategories = 'New,Process,Report,Print/Send,Line';
     SaveValues = true;
-    SourceTable = "Test Questionnaire Line";
+    SourceTable = "Report Test Questionnaire Line";
 
     layout
     {
@@ -112,7 +112,7 @@ page 50103 "Test Questionnaire Card"
 
     trigger OnOpenPage()
     var
-        TestQuestionnaireHeader: Record "Test Questionnaire Header";
+        TestQuestionnaireHeader: Record "Report Test Questionnaire Hdr.";
     begin
         if GetFilter("Test Questionnaire Code") <> '' then begin
             TestQuestionnaireHeader.SetFilter(Code, GetFilter("Test Questionnaire Code"));
@@ -126,7 +126,7 @@ page 50103 "Test Questionnaire Card"
     end;
 
     var
-        TestQuestnHeader: Record "Test Questionnaire Header";
+        TestQuestnHeader: Record "Report Test Questionnaire Hdr.";
         CurrentQuestionsChecklistCode: Code[20];
         CaptionExpr: Text[100];
 
