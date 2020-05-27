@@ -1,7 +1,7 @@
 {
   "id": "dc4e825c-0aa9-42cd-8956-45b9a457ce29",
-  "name": "Report-Test-Page",
-  "publisher": "Default publisher",
+  "name": "Report-Overview",
+  "publisher": "Waldemar Brakowski",
   "version": "1.0.0.0",
   "brief": "",
   "description": "",
@@ -32,7 +32,6 @@
       "to": 50149
     }
   ],
-  "contextSensitiveHelpUrl": "https://Report-Test-Page.com/help/",
   "showMyCode": true,
   "runtime": "5.0"
 }

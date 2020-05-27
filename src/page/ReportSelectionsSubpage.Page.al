@@ -1,10 +1,9 @@
 page 50101 "Report Selections Subpage"
 {
-
     PageType = ListPart;
     SourceTable = "Report Selections";
     Caption = 'Report Selections';
-    SourceTableView = where(Usage = Filter("P.Order" | "S.Order" | "Pro Forma S. Invoice" | "S.Cr.Memo" | "S.Invoice" | "S.Shipment" | "S.Quote"));
+    SourceTableView = where(Usage = Filter("P.Quote" | "P.Order" | "P.Invoice" | "P.Cr.Memo" | "S.Quote" | "S.Order" | "S.Shipment" | "S.Invoice" | "Pro Forma S. Invoice" | "S.Cr.Memo"));
     ShowFilter = true;
     layout
     {
@@ -16,11 +15,11 @@ page 50101 "Report Selections Subpage"
                 {
                     ApplicationArea = All;
                 }
-                field("Report Caption"; "Report Caption")
+                field("Report ID"; "Report ID")
                 {
                     ApplicationArea = All;
                 }
-                field("Report ID"; "Report ID")
+                field("Report Caption"; "Report Caption")
                 {
                     ApplicationArea = All;
                 }
@@ -87,15 +86,15 @@ page 50101 "Report Selections Subpage"
     }
 
     var
-        ReportTestMgt: Codeunit "Report Test Mgt.";
-        ListPageNo: Integer;
+        ReportOverviewMgt: Codeunit "Report Overview Mgt.";
         CardPageNo: Integer;
+        ListPageNo: Integer;
 
 
     trigger OnAfterGetRecord()
     begin
-        CardPageNo := ReportTestMgt.GetCardPageNo(Usage);
-        ListPageNo := ReportTestMgt.GetListPageNo(Usage);
+        CardPageNo := ReportOverviewMgt.GetCardPageNo(Usage);
+        ListPageNo := ReportOverviewMgt.GetListPageNo(Usage);
     end;
 
 
