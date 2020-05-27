@@ -8,7 +8,7 @@ The report overview contains two SubPages:
 1. Report Overview: All your customized reports with PageActions to run the reports or pages. Insert a List Page ID or Card Page ID and then simply run the pages from here.
 2. Report Selections: Prefiltered report selections for sales/purchase. You can also run reports/pages from the PageActions.
 
-![ReportOverview](resources/Actions1.png)
+![ReportOverview](resources/ReportOverview.png)
 
 PageActions of the main page:
 
