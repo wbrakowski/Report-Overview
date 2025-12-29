@@ -1,42 +1,86 @@
 page 50100 "Report Overview"
 {
-    PageType = Card;
     ApplicationArea = All;
-    UsageCategory = Administration;
-    SourceTable = "Report Test";
     Caption = 'Report Overview';
+    PageType = Card;
     PromotedActionCategories = 'New, Process, Report, Attachment, Settings';
+    UsageCategory = Administration;
 
     layout
     {
         area(Content)
         {
-            field(CustomReportNo; CustomReportNo)
+            group(FilterGroup)
             {
-                ApplicationArea = All;
-                Caption = 'Run Report with ID';
-                TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Report));
-                trigger OnValidate();
-                begin
-                    CustomReportCaption := ReportOverviewMgt.GetCustomReportCaption(CustomReportNo);
-                end;
+                Caption = 'Filters';
+                field(ShowFavoritesOnly; ShowFavoritesOnly)
+                {
+                    Caption = 'Show Favorites Only';
+                    ToolTip = 'Specifies whether to show only reports marked as favorites.';
+
+                    trigger OnValidate()
+                    begin
+                        ApplyFilters();
+                    end;
+                }
+                field(CategoryFilter; CategoryFilter)
+                {
+                    Caption = 'Category Filter';
+                    ToolTip = 'Specifies the category to filter reports by.';
+
+                    trigger OnValidate()
+                    begin
+                        ApplyFilters();
+                    end;
+                }
             }
-            field(CustomReportCaption; CustomReportCaption)
+            group(QuickRunGroup)
             {
-                ApplicationArea = All;
-                Editable = false;
-                Caption = 'Run Report with Caption';
+                Caption = 'Quick Run Report';
+                field(CustomReportNo; CustomReportNo)
+                {
+                    Caption = 'Report ID';
+                    ToolTip = 'Specifies the ID of the report to run.';
+                    TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Report));
+                    ShowMandatory = true;
+
+                    trigger OnValidate()
+                    begin
+                        CustomReportCaption := ReportOverviewMgt.GetCustomReportCaption(CustomReportNo);
+                    end;
+                }
+                field(CustomReportCaption; CustomReportCaption)
+                {
+                    Caption = 'Report Caption';
+                    ToolTip = 'Specifies the caption of the selected report.';
+                    Editable = false;
+                }
+                field(RunReportButton; RunReportButtonText)
+                {
+                    Caption = ' ', Locked = true;
+                    Editable = false;
+                    ShowCaption = false;
+                    Style = Strong;
+                    StyleExpr = true;
+
+                    trigger OnDrillDown()
+                    begin
+                        RunCustomReport(CustomReportNo);
+                    end;
+                }
             }
             part(ReportOverviewSubpage; "Report Overview Subpage")
             {
-                ApplicationArea = Basic;
+                ApplicationArea = Basic, Suite;
                 Editable = true;
                 ShowFilter = true;
+                UpdatePropagation = Both;
+                SubPageView = sorting("Report ID");
             }
 
             part(ReportSelectionsSubpage; "Report Selections Subpage")
             {
-                ApplicationArea = Basic;
+                ApplicationArea = Basic, Suite;
                 Editable = true;
                 ShowFilter = true;
             }
@@ -47,71 +91,75 @@ page 50100 "Report Overview"
     {
         area(Reporting)
         {
-            Action(RunReportCustom)
+            action(ShowAllReports)
             {
-                ApplicationArea = All;
+                Caption = 'Show All Reports';
+                ToolTip = 'Removes all filters and shows all reports.';
+                Image = ClearFilter;
                 Promoted = true;
-                PromotedOnly = true;
-                PromotedIsBig = true;
                 PromotedCategory = Report;
-                Caption = 'Run Report with ID';
+                PromotedIsBig = true;
+                PromotedOnly = true;
+
                 trigger OnAction()
                 begin
-                    RunCustomReport(CustomReportNo);
+                    ShowFavoritesOnly := false;
+                    CategoryFilter := CategoryFilter::" ";
+                    ApplyFilters();
+                end;
+            }
+            action(ShowFavoritesAction)
+            {
+                Caption = 'Show Favorites';
+                ToolTip = 'Shows only reports marked as favorites.';
+                Image = AddWatch;
+                Promoted = true;
+                PromotedCategory = Report;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+
+                trigger OnAction()
+                begin
+                    ShowFavoritesOnly := true;
+                    ApplyFilters();
                 end;
             }
         }
         area(Navigation)
         {
-            Action(OpenReportSettings)
+            action(ReportSelectionSales)
             {
-                ApplicationArea = All;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedOnly = true;
-                PromotedCategory = Category5;
-                Image = Open;
-                Caption = 'Open Report Settings';
-                trigger OnAction()
-
-                begin
-                    ReportOverviewMgt.OpenReportSettings("Report ID");
-                end;
-            }
-            Action(OpenReportSelectionSales)
-            {
-                ApplicationArea = All;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedOnly = true;
-                PromotedCategory = Category5;
-                RunObject = Page "Report Selection - Sales";
+                Caption = 'Report Selection Sales';
+                ToolTip = 'Opens the report selection page for sales documents.';
                 Image = Table;
-                Caption = 'Open Report Selection Sales';
-            }
-            Action(OpenReportSelectionPurchase)
-            {
-                ApplicationArea = All;
                 Promoted = true;
+                PromotedCategory = Category5;
                 PromotedIsBig = true;
                 PromotedOnly = true;
-                PromotedCategory = Category5;
-                RunObject = Page "Report Selection - Purchase";
-                Image = Table;
-                Caption = 'Open Report Selection Purchase';
+                RunObject = page "Report Selection - Sales";
             }
-            Action(OpenCompanyInfo)
+            action(ReportSelectionPurchase)
             {
-                ApplicationArea = All;
+                Caption = 'Report Selection Purchase';
+                ToolTip = 'Opens the report selection page for purchase documents.';
+                Image = Table;
                 Promoted = true;
+                PromotedCategory = Category5;
                 PromotedIsBig = true;
                 PromotedOnly = true;
-                PromotedCategory = Category5;
-                RunObject = Page "Company Information";
-                Image = Table;
-                Caption = 'Open Company Information';
+                RunObject = page "Report Selection - Purchase";
             }
-
+            action(CompanyInfo)
+            {
+                Caption = 'Company Information';
+                ToolTip = 'Opens the company information page.';
+                Image = Table;
+                Promoted = true;
+                PromotedCategory = Category5;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                RunObject = page "Company Information";
+            }
         }
     }
 
@@ -119,11 +167,24 @@ page 50100 "Report Overview"
         ReportOverviewMgt: Codeunit "Report Overview Mgt.";
         CustomReportNo: Integer;
         CustomReportCaption: Text[250];
-
+        ShowFavoritesOnly: Boolean;
+        CategoryFilter: Enum "Report Category";
+        RunReportButtonText: Text;
 
     trigger OnOpenPage()
     begin
         ReportOverviewMgt.FillTestTable();
+        RunReportButtonText := '▶ Run Report';
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        ApplyFilters();
+    end;
+
+    local procedure ApplyFilters()
+    begin
+        CurrPage.ReportOverviewSubpage.Page.SetFilters(ShowFavoritesOnly, CategoryFilter);
     end;
 
     local procedure RunCustomReport(ReportNo: Integer)

@@ -1,86 +1,84 @@
 page 50101 "Report Selections Subpage"
 {
-    PageType = ListPart;
-    SourceTable = "Report Selections";
+    ApplicationArea = All;
     Caption = 'Report Selections';
-    SourceTableView = where(Usage = Filter("P.Quote" | "P.Order" | "P.Invoice" | "P.Cr.Memo" | "S.Quote" | "S.Order" | "S.Shipment" | "S.Invoice" | "Pro Forma S. Invoice" | "S.Cr.Memo"));
+    PageType = ListPart;
     ShowFilter = true;
+    SourceTable = "Report Selections";
+    SourceTableView = where(Usage = filter("P.Quote" | "P.Order" | "P.Invoice" | "P.Cr.Memo" | "S.Quote" | "S.Order" | "S.Shipment" | "S.Invoice" | "Pro Forma S. Invoice" | "S.Cr.Memo"));
     layout
     {
-        area(content)
+        area(Content)
         {
             repeater(General)
             {
-                field(Usage; Usage)
+                field(Usage; Rec.Usage)
                 {
-                    ApplicationArea = All;
+                    ToolTip = 'Specifies the usage context for the report selection.';
                 }
-                field("Report ID"; "Report ID")
+                field("Report ID"; Rec."Report ID")
                 {
-                    ApplicationArea = All;
                 }
-                field("Report Caption"; "Report Caption")
+                field(RunReportLink; '▶')
                 {
-                    ApplicationArea = All;
+                    Caption = 'Run Report';
+                    ToolTip = 'Specifies the action to run the selected report.';
+                    Editable = false;
+                    Width = 1;
+                    Style = Favorable;
+                    StyleExpr = Rec."Report ID" <> 0;
+
+                    trigger OnDrillDown()
+                    begin
+                        if Rec."Report ID" <> 0 then
+                            Report.RunModal(Rec."Report ID");
+                    end;
+                }
+                field("Report Caption"; Rec."Report Caption")
+                {
                 }
                 field(ListPageNo; ListPageNo)
                 {
-                    ApplicationArea = All;
                     Caption = 'List Page No.';
+                    ToolTip = 'Specifies the page number of the associated list page.';
+                    Editable = false;
+                }
+                field(OpenListPageLink; '🔗')
+                {
+                    Caption = 'Open List Page';
+                    ToolTip = 'Specifies the action to open the associated list page.';
+                    Editable = false;
+                    Width = 1;
+                    Style = Favorable;
+                    StyleExpr = ListPageNo <> 0;
+
+                    trigger OnDrillDown()
+                    begin
+                        if ListPageNo <> 0 then
+                            Page.Run(ListPageNo);
+                    end;
                 }
                 field(CardPageNo; CardPageNo)
                 {
-                    ApplicationArea = All;
                     Caption = 'Card Page No.';
+                    ToolTip = 'Specifies the page number of the associated card page.';
+                    Editable = false;
                 }
+                field(OpenCardPageLink; '🔗')
+                {
+                    Caption = 'Open Card Page';
+                    ToolTip = 'Specifies the action to open the associated card page.';
+                    Editable = false;
+                    Width = 1;
+                    Style = Favorable;
+                    StyleExpr = CardPageNo <> 0;
 
-            }
-        }
-    }
-    actions
-    {
-        area(Processing)
-        {
-            action(RunReport)
-            {
-                ApplicationArea = All;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedIsBig = true;
-                PromotedCategory = Report;
-                Caption = 'Run selected Report';
-                trigger OnAction()
-                begin
-                    Report.RunModal("Report ID");
-                end;
-            }
-            action(OpenCardPage)
-            {
-                ApplicationArea = All;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
-                Image = Table;
-                Caption = 'Open Card Page';
-                trigger OnAction()
-                begin
-                    Page.Run(CardPageNo);
-                end;
-            }
-            action(OpenListPage)
-            {
-                ApplicationArea = All;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
-                Image = Table;
-                Caption = 'Open List Page';
-                trigger OnAction()
-                begin
-                    Page.Run(ListPageNo);
-                end;
+                    trigger OnDrillDown()
+                    begin
+                        if CardPageNo <> 0 then
+                            Page.Run(CardPageNo);
+                    end;
+                }
             }
         }
     }
@@ -90,12 +88,9 @@ page 50101 "Report Selections Subpage"
         CardPageNo: Integer;
         ListPageNo: Integer;
 
-
     trigger OnAfterGetRecord()
     begin
-        CardPageNo := ReportOverviewMgt.GetCardPageNo(Usage);
-        ListPageNo := ReportOverviewMgt.GetListPageNo(Usage);
+        CardPageNo := ReportOverviewMgt.GetCardPageNo(Rec.Usage);
+        ListPageNo := ReportOverviewMgt.GetListPageNo(Rec.Usage);
     end;
-
-
 }
