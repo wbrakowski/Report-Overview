@@ -45,6 +45,29 @@ A powerful and intuitive extension for managing, organizing, and executing custo
 ![Report Categories](resources/report-categories.png)
 *Category dropdown and filtering in action*
 
+### ✅ **Test Tracking**
+- Set a **Test Status** (Passed or Failed) per report; the date and the user are stored with it
+- Passed is shown in green, Failed in red
+- **Show Untested Only** turns the list into a checklist, for example after an upgrade
+- Keep notes per report in **Test Information**
+
+![Test Tracking](resources/test-status.png)
+*Show Untested Only lists the reports that still have to be tested*
+
+### 🧪 **Test Parameters, Download and Layouts**
+- **Test Parameters (✎)**: Store the request page values and filters of a report once, for example a document number. The run button then starts the report without request page
+- **Download (⬇)**: Download the output as PDF, Word or Excel file. With stored test parameters no request page is shown
+- **Report Settings (⚙)**: Open the request page settings that you saved for the report
+- **Layout**: See the layout that is currently used and open the layouts of the report with one click
+- **Remove Missing Reports**: Entries whose report no longer exists are greyed out and can be removed with one action
+
+### 🏠 **Favorites on the Role Center**
+- The part **Favorite Reports** shows your favorites on the Business Manager and the Administrator role center
+- Run a favorite directly from the role center or open the Report Overview from there
+
+![Favorite Reports on the Role Center](resources/role-center-favorites.png)
+*Favorite reports with run buttons on the role center*
+
 ### 🎯 **Quick Navigation**
 - **Inline Run Buttons (▶)**: Execute reports directly from the list with visual feedback
 - **Inline Page Links (🔗)**: Open associated list or card pages instantly
@@ -59,18 +82,22 @@ A powerful and intuitive extension for managing, organizing, and executing custo
   - Report ID and Caption
   - List Page No. and Card Page No.
   - Category assignment
+  - Test status with date and user of the last test
+  - Current layout
   - Custom notes/information
 - Favorite toggle with visual feedback
-- Inline action buttons for quick execution
+- Inline action buttons to run, download and configure a report
 
 ![Report Overview Subpage](resources/report-overview-subpage.png)
 *Custom reports list with inline ▶ Run and 🔗 Link buttons*
 
 #### 2. **Report Selections Subpage**
-- Pre-filtered standard BC report selections (Sales & Purchase)
+- Pre-filtered standard BC report selections for documents
 - Supported document types:
-  - Purchase: Quote, Order, Invoice, Credit Memo
+  - Purchase: Quote, Order, Invoice, Credit Memo, Receipt, Return Shipment
   - Sales: Quote, Order, Shipment, Invoice, Pro Forma Invoice, Credit Memo
+  - Service: Quote, Order, Invoice, Credit Memo, Shipment
+  - Reminder and Finance Charge Memo
 - Automatic page number resolution for list and card pages
 - Inline buttons for running reports and opening pages
 
@@ -103,7 +130,7 @@ A powerful and intuitive extension for managing, organizing, and executing custo
 2. The page will automatically populate with all custom reports
 
 ### Quick Run Report
-1. Enter a **Report ID** in the "Quick Run Report" section
+1. Enter a **Report ID** in the "Quick Run Report" section (only IDs of existing reports are accepted)
 2. The report caption will be displayed automatically
 3. Click the **▶ Run Report** button to execute immediately
 
@@ -120,6 +147,9 @@ A powerful and intuitive extension for managing, organizing, and executing custo
 
 ### Using Inline Buttons
 - **▶ Button**: Click next to any Report ID to run the report instantly
+- **✎ Button**: Enter and store the test parameters of the report. The button is highlighted when test parameters are stored
+- **⬇ Button**: Download the output of the report as PDF, Word or Excel file
+- **⚙ Button**: Open the saved report settings of the report
 - **🔗 Button**: Click next to List/Card Page No. to open the associated page
 - Visual feedback: Buttons are highlighted when the target is valid (non-zero)
 
@@ -129,7 +159,27 @@ A powerful and intuitive extension for managing, organizing, and executing custo
 ### Filtering Reports
 - **Show Favorites Only**: Toggle to display only favorite reports
 - **Category Filter**: Select a category to filter reports
+- **Show Untested Only**: Toggle to display only reports without a test status
 - **Show All Reports** action: Clears all filters instantly
+
+### Tracking Tests
+1. Run the report and check its output
+2. Set **Test Status** to Passed or Failed. **Last Tested At** and **Last Tested By** are filled automatically
+3. Clear the test status to mark the report as untested again
+
+### Running a Report without Request Page
+1. Click the **✎** button of the report and enter the filters and options on the request page, for example the number of a test document
+2. Choose **OK**. The values are stored for the report
+3. From now on **▶** shows the preview directly, and **⬇** downloads the output without request page
+4. Use **Test** → **Clear Test Parameters** to remove the stored values
+
+### Checking Layouts
+1. The column **Layout** shows the layout that the report currently uses
+2. Click the layout name to open the report layouts of this report
+
+### Cleaning Up
+- Entries whose report no longer exists are greyed out, for example after an extension was uninstalled
+- Use **Test** → **Remove Missing Reports** to remove these entries
 
 ### Accessing Standard Report Selections
 1. View pre-filtered selections in the **Report Selections Subpage**
@@ -147,9 +197,13 @@ A powerful and intuitive extension for managing, organizing, and executing custo
 | ------------- | --------- | ------------------------- | -------------------------------------------------- |
 | Table         | 50100     | Report Test               | Stores custom report metadata and user preferences |
 | Enum          | 50100     | Report Category           | Categorization options for reports                 |
+| Enum          | 50101     | Report Test Status        | Test result of a report (Passed, Failed)           |
 | Page          | 50100     | Report Overview           | Main dashboard (Card Page)                         |
 | Page          | 50102     | Report Overview Subpage   | Custom reports list (ListPart)                     |
 | Page          | 50101     | Report Selections Subpage | Standard report selections (ListPart)              |
+| Page          | 50103     | Favorite Reports          | Favorites for the role center (ListPart)           |
+| PageExtension | 50100     | Bus. Manager RC Fav. Reports  | Adds Favorite Reports to the Business Manager role center |
+| PageExtension | 50101     | Administrator RC Fav. Reports | Adds Favorite Reports to the Administrator role center    |
 | Codeunit      | 50100     | Report Overview Mgt.      | Business logic and report management               |
 | PermissionSet | 50100     | Report Overview           | Grants access to all extension objects             |
 
@@ -210,10 +264,10 @@ AllObjWithCaption.SetRange("Object ID", YourStartID, YourEndID);
 - `Report-Overview.code-workspace`: open this file in VS Code to work with both apps
 
 ### Automated Tests
-- 57 tests in three test codeunits cover the business logic (page mapping, report discovery, report captions, report settings), the pages (filters, Quick Run Report, inline buttons, editing lines, favorites, report selections, navigation actions) and the permission set
+- 98 tests in four test codeunits cover the business logic (page mapping, report discovery, report captions, report settings, test status, test parameters, layouts, download), the pages (filters, Quick Run Report, inline buttons, editing lines, favorites, report selections, navigation actions, role center part) and the permission set
 - The test app depends on the Microsoft apps `Library Assert` and `Permissions Mock` and needs a sandbox or container with the Microsoft test framework. Run the tests only in a test environment: they clear the report list during the run
 - Publish `app`, then `test`, and run the tests from the VS Code Test Explorer
-- The test app contains the reports `Report Overview Test Report` (50150) and `Test Report With Request Page` (50151). While the test app is installed, these reports show up in the Report Overview. Report 50150 has no request page and no output, so running it shows nothing; report 50151 opens a request page
+- The test app contains the reports `Report Overview Test Report` (50150), `Test Report With Request Page` (50151) and `Test Report With Layout` (50152). While the test app is installed, these reports show up in the Report Overview. Report 50150 has no request page and no output, so running it shows nothing; report 50151 opens a request page; report 50152 has an empty layout
 
 ### Code Quality
 - **No compilation warnings or errors**
@@ -243,6 +297,9 @@ AllObjWithCaption.SetRange("Object ID", YourStartID, YourEndID);
 1. Find the Page ID for your list or card page
 2. Enter the ID in **"List Page No."** or **"Card Page No."**
 3. Use the inline 🔗 buttons to navigate directly
+
+![Page Links](resources/page-links.png)
+*List and card pages per report with inline 🔗 buttons, layout and test information*
 
 ---
 

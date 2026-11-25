@@ -9,7 +9,7 @@ page 50101 "Report Selections Subpage"
     PageType = ListPart;
     ShowFilter = true;
     SourceTable = "Report Selections";
-    SourceTableView = where(Usage = filter("P.Quote" | "P.Order" | "P.Invoice" | "P.Cr.Memo" | "S.Quote" | "S.Order" | "S.Shipment" | "S.Invoice" | "Pro Forma S. Invoice" | "S.Cr.Memo"));
+    SourceTableView = where(Usage = filter("P.Quote" | "P.Order" | "P.Invoice" | "P.Cr.Memo" | "P.Receipt" | "P.Ret.Shpt." | "S.Quote" | "S.Order" | "S.Shipment" | "S.Invoice" | "Pro Forma S. Invoice" | "S.Cr.Memo" | "SM.Quote" | "SM.Order" | "SM.Invoice" | "SM.Credit Memo" | "SM.Shipment" | Reminder | "Fin.Charge"));
     layout
     {
         area(Content)
