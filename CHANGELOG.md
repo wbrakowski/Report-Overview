@@ -13,9 +13,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Requires Business Central 29 (platform and application 29.0.0.0, runtime 18.0)
 - All objects are in the namespace `ReportOverview`
 - The extension moved into the folder `app/`; open `Report-Overview.code-workspace` to work with the extension and its tests
+- Quick Run Report only accepts the ID of an existing report. Before, the ID of another object type was accepted and failed when the report was run
+- The run button uses stored test parameters and then shows the preview without request page
 
 ### Added
-- Automated tests as a separate app in `test/` (57 tests for the business logic, the pages and the permission set)
+- **Test status** per report (Passed, Failed) with date and user of the last test, and the filter **Show Untested Only**
+- **Test parameters**: store the request page values and filters of a report with the inline ✎ button, remove them with **Clear Test Parameters**
+- **Download**: inline ⬇ button that saves the report output as PDF, Word or Excel file
+- **Report settings**: inline ⚙ button that opens the saved request page settings of the report
+- **Layout** column with the layout currently used; the value opens the layouts of the report
+- **Remove Missing Reports**: entries whose report no longer exists are greyed out and can be removed
+- **Favorite Reports** part on the Business Manager and the Administrator role center
+- Report selections part: purchase receipts and return shipments, service quotes, orders, invoices, credit memos and shipments, reminders and finance charge memos
+- Automated tests as a separate app in `test/` (98 tests for the business logic, the pages and the permission set)
+- New screenshots in the README
 
 ### Fixed
 - Favorite reports are highlighted: the style is on `Report ID` and `Report Caption`. Before it was on the `Is Favorite` checkbox, where the client does not show it

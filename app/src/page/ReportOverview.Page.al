@@ -40,6 +40,16 @@ page 50100 "Report Overview"
                         ApplyFilters();
                     end;
                 }
+                field(ShowUntestedOnly; ShowUntestedOnly)
+                {
+                    Caption = 'Show Untested Only';
+                    ToolTip = 'Specifies whether to show only reports without a test status.';
+
+                    trigger OnValidate()
+                    begin
+                        ApplyFilters();
+                    end;
+                }
             }
             group(QuickRunGroup)
             {
@@ -53,6 +63,7 @@ page 50100 "Report Overview"
 
                     trigger OnValidate()
                     begin
+                        ReportOverviewMgt.CheckReportExists(CustomReportNo);
                         CustomReportCaption := ReportOverviewMgt.GetCustomReportCaption(CustomReportNo);
                     end;
                 }
@@ -112,6 +123,7 @@ page 50100 "Report Overview"
                 begin
                     ShowFavoritesOnly := false;
                     CategoryFilter := CategoryFilter::" ";
+                    ShowUntestedOnly := false;
                     ApplyFilters();
                 end;
             }
@@ -175,6 +187,7 @@ page 50100 "Report Overview"
         CustomReportNo: Integer;
         CustomReportCaption: Text[250];
         ShowFavoritesOnly: Boolean;
+        ShowUntestedOnly: Boolean;
         CategoryFilter: Enum "Report Category";
         RunReportButtonText: Text;
 
@@ -191,7 +204,7 @@ page 50100 "Report Overview"
 
     local procedure ApplyFilters()
     begin
-        CurrPage.ReportOverviewSubpage.Page.SetFilters(ShowFavoritesOnly, CategoryFilter);
+        CurrPage.ReportOverviewSubpage.Page.SetFilters(ShowFavoritesOnly, CategoryFilter, ShowUntestedOnly);
     end;
 
     local procedure RunCustomReport(ReportNo: Integer)

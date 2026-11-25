@@ -635,9 +635,9 @@ codeunit 50151 "Report Overview Page Test"
         ReportSelections: Record "Report Selections";
         ReportSelectionsSubpage: TestPage "Report Selections Subpage";
     begin
-        // [GIVEN] A report selection for a usage outside sales and purchase documents
+        // [GIVEN] A report selection for a usage without a mapped document page
         Initialize();
-        CreateReportSelection(ReportSelections, Enum::"Report Selection Usage"::Reminder);
+        CreateReportSelection(ReportSelections, Enum::"Report Selection Usage"::"B.Check");
 
         // [WHEN] The report selections part is opened
         ReportSelectionsSubpage.OpenView();
@@ -673,7 +673,7 @@ codeunit 50151 "Report Overview Page Test"
         Usages: List of [Enum "Report Selection Usage"];
         Usage: Enum "Report Selection Usage";
     begin
-        // [GIVEN] A report selection for each sales and purchase document usage
+        // [GIVEN] A report selection for each supported document usage
         Initialize();
         GetDocumentUsages(Usages);
         foreach Usage in Usages do
@@ -946,12 +946,21 @@ codeunit 50151 "Report Overview Page Test"
         Usages.Add(Enum::"Report Selection Usage"::"P.Order");
         Usages.Add(Enum::"Report Selection Usage"::"P.Invoice");
         Usages.Add(Enum::"Report Selection Usage"::"P.Cr.Memo");
+        Usages.Add(Enum::"Report Selection Usage"::"P.Receipt");
+        Usages.Add(Enum::"Report Selection Usage"::"P.Ret.Shpt.");
         Usages.Add(Enum::"Report Selection Usage"::"S.Quote");
         Usages.Add(Enum::"Report Selection Usage"::"S.Order");
         Usages.Add(Enum::"Report Selection Usage"::"S.Shipment");
         Usages.Add(Enum::"Report Selection Usage"::"S.Invoice");
         Usages.Add(Enum::"Report Selection Usage"::"Pro Forma S. Invoice");
         Usages.Add(Enum::"Report Selection Usage"::"S.Cr.Memo");
+        Usages.Add(Enum::"Report Selection Usage"::"SM.Quote");
+        Usages.Add(Enum::"Report Selection Usage"::"SM.Order");
+        Usages.Add(Enum::"Report Selection Usage"::"SM.Invoice");
+        Usages.Add(Enum::"Report Selection Usage"::"SM.Credit Memo");
+        Usages.Add(Enum::"Report Selection Usage"::"SM.Shipment");
+        Usages.Add(Enum::"Report Selection Usage"::Reminder);
+        Usages.Add(Enum::"Report Selection Usage"::"Fin.Charge");
     end;
 
     local procedure CreateReportTest(ReportId: Integer; IsFavorite: Boolean; Category: Enum "Report Category")

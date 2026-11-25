@@ -9,6 +9,7 @@ permissionset 50100 "Report Overview"
         table "Report Test" = X,
         tabledata "Report Test" = RIMD,
         codeunit "Report Overview Mgt." = X,
+        page "Favorite Reports" = X,
         page "Report Overview" = X,
         page "Report Overview Subpage" = X,
         page "Report Selections Subpage" = X;
