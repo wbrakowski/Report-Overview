@@ -83,8 +83,8 @@ A powerful and intuitive extension for managing, organizing, and executing custo
 
 ### Prerequisites
 - Microsoft Dynamics 365 Business Central (Cloud)
-- Platform version: 27.0.0.0 or higher
-- Runtime: 16.0 or higher
+- Platform version: 29.0.0.0 or higher
+- Runtime: 18.0 or higher
 - Object ID range: 50100-50149 available
 
 ### Installation Steps
@@ -197,16 +197,28 @@ enumextension 50100 "My Report Categories" extends "Report Category"
 To scan a different report ID range, modify the `FillTestTable()` procedure in codeunit 50100:
 
 ```al
-SetRange("Object ID", YourStartID, YourEndID);
+AllObjWithCaption.SetRange("Object ID", YourStartID, YourEndID);
 ```
 
 ---
 
 ## 🛠️ Development Notes
 
+### Repository Layout
+- `app/`: the extension (object IDs 50100-50149, namespace `ReportOverview`)
+- `test/`: the automated tests as a separate app (object IDs 50150-50199, namespace `ReportOverview.Test`)
+- `Report-Overview.code-workspace`: open this file in VS Code to work with both apps
+
+### Automated Tests
+- 57 tests in three test codeunits cover the business logic (page mapping, report discovery, report captions, report settings), the pages (filters, Quick Run Report, inline buttons, editing lines, favorites, report selections, navigation actions) and the permission set
+- The test app depends on the Microsoft apps `Library Assert` and `Permissions Mock` and needs a sandbox or container with the Microsoft test framework. Run the tests only in a test environment: they clear the report list during the run
+- Publish `app`, then `test`, and run the tests from the VS Code Test Explorer
+- The test app contains the reports `Report Overview Test Report` (50150) and `Test Report With Request Page` (50151). While the test app is installed, these reports show up in the Report Overview. Report 50150 has no request page and no output, so running it shows nothing; report 50151 opens a request page
+
 ### Code Quality
 - **No compilation warnings or errors**
 - NoImplicitWith feature enabled
+- Namespaces in all objects
 - All fields and actions have descriptive ToolTips
 - Reduced cyclomatic complexity (<8) in all procedures
 - Follows AL coding best practices

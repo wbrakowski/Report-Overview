@@ -1,3 +1,5 @@
+namespace ReportOverview;
+
 page 50102 "Report Overview Subpage"
 {
     ApplicationArea = All;
@@ -16,11 +18,11 @@ page 50102 "Report Overview Subpage"
             {
                 field("Is Favorite"; Rec."Is Favorite")
                 {
-                    Style = Attention;
-                    StyleExpr = Rec."Is Favorite";
                 }
                 field("Report ID"; Rec."Report ID")
                 {
+                    Style = Attention;
+                    StyleExpr = Rec."Is Favorite";
                 }
                 field(RunReportLink; '▶')
                 {
@@ -39,6 +41,8 @@ page 50102 "Report Overview Subpage"
                 }
                 field("Report Caption"; Rec."Report Caption")
                 {
+                    Style = Attention;
+                    StyleExpr = Rec."Is Favorite";
                 }
                 field(Category; Rec.Category)
                 {

@@ -1,3 +1,5 @@
+namespace ReportOverview;
+
 enum 50100 "Report Category"
 {
     Extensible = true;

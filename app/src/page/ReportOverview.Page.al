@@ -1,3 +1,10 @@
+namespace ReportOverview;
+
+using Microsoft.Foundation.Company;
+using Microsoft.Purchases.Setup;
+using Microsoft.Sales.Setup;
+using System.Reflection;
+
 page 50100 "Report Overview"
 {
     ApplicationArea = All;
