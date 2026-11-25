@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Changed
+- Requires Business Central 29 (platform and application 29.0.0.0, runtime 18.0)
+- All objects are in the namespace `ReportOverview`
+- The extension moved into the folder `app/`; open `Report-Overview.code-workspace` to work with the extension and its tests
+
+### Added
+- Automated tests as a separate app in `test/` (57 tests for the business logic, the pages and the permission set)
+
+### Fixed
+- Favorite reports are highlighted: the style is on `Report ID` and `Report Caption`. Before it was on the `Is Favorite` checkbox, where the client does not show it
+
+---
+
 ## [1.0.0.0] - 2025-12-29
 
 ### Added

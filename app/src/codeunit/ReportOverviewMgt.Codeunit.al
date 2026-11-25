@@ -1,3 +1,12 @@
+namespace ReportOverview;
+
+using Microsoft.Foundation.Reporting;
+using Microsoft.Purchases.Document;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
+using System.Environment.Configuration;
+using System.Reflection;
+
 codeunit 50100 "Report Overview Mgt."
 {
     Permissions = tabledata "Report Test" = ri;

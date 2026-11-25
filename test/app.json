@@ -1,0 +1,47 @@
+{
+  "id": "10ed9cc9-71f9-4f51-ad65-41d62c632576",
+  "name": "Report-Overview Tests",
+  "publisher": "Waldemar Brakowski",
+  "version": "1.0.0.0",
+  "brief": "",
+  "description": "Automated test suite for the Report-Overview extension.",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",
+  "dependencies": [
+    {
+      "id": "dc4e825c-0aa9-42cd-8956-45b9a457ce29",
+      "name": "Report-Overview",
+      "publisher": "Waldemar Brakowski",
+      "version": "1.0.0.0"
+    },
+    {
+      "id": "dd0be2ea-f733-4d65-bb34-a28f4624fb14",
+      "name": "Library Assert",
+      "publisher": "Microsoft",
+      "version": "29.0.0.0"
+    },
+    {
+      "id": "40860557-a18d-42ad-aecb-22b7dd80dc80",
+      "name": "Permissions Mock",
+      "publisher": "Microsoft",
+      "version": "29.0.0.0"
+    }
+  ],
+  "screenshots": [],
+  "platform": "29.0.0.0",
+  "application": "29.0.0.0",
+  "idRanges": [
+    {
+      "from": 50150,
+      "to": 50199
+    }
+  ],
+  "features": [
+    "NoImplicitWith"
+  ],
+  "runtime": "18.0",
+  "target": "Cloud"
+}

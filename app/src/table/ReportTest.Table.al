@@ -1,3 +1,7 @@
+namespace ReportOverview;
+
+using System.Reflection;
+
 table 50100 "Report Test"
 {
     Caption = 'Report Test';

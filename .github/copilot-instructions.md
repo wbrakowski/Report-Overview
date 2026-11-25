@@ -1,43 +1,42 @@
 # Report Overview - AI Agent Instructions
 
-## Project Overview
-Business Central AL extension (ID range 50100-50149) for managing custom reports with favorites, categorization, and inline navigation. Target: BC Cloud, Platform 27.0, Runtime 16.0.
+## Working Rules (always)
+1. **Branch first.** Before changing any file, create a new branch from the up-to-date `master` (`git switch master`, `git pull`, `git switch -c <name>`). Never change files on `master`. Names: `feature/<topic>`, `fix/<topic>`, `docs/<topic>`, or the BC version for upgrades (`bc29`).
+2. Commit, push, pull request and merge only when the user asks for it.
+3. After every change both apps must build without errors, warnings or info messages, and all tests must pass in the local container (see "Build, Publish, Test").
+4. **Always test automatically.** Every new or changed behavior gets automated tests in `test/` for everything that can be automated: logic, pages through `TestPage`, permissions. Run the whole suite in the container yourself, never hand untested work to the user. Never weaken a test to make it pass: first find out whether the test or the app is wrong.
+5. What cannot be automated (see "Not automatable") is listed for the user at the end of the task as concrete steps for his manual test.
+6. Keep `README.md` (features, object table) and `CHANGELOG.md` (section `[Unreleased]`, released versions below) in sync with the code. Never document planned features.
 
-## Architecture & Core Components
+## Project
+Business Central extension that lists custom reports (object IDs 50000..100000) on a dashboard with favorites, categories and inline buttons to run a report or open its list/card page. Target: Cloud, platform and application 29.0, runtime 18.0, feature `NoImplicitWith`.
 
-### Data Model (Table 50100 "Report Test")
-- **Primary Key**: Report ID (Integer)
-- **FlowFields**: Report Caption (dynamic lookup from AllObjWithCaption)
-- **FlowFilters**: Is Favorite Filter, Category Filter (for main page filtering)
-- **User Data**: Is Favorite (Boolean), Category (Enum), List/Card Page No., Test Information
-- **Auto-Population**: `FillTestTable()` scans AllObjWithCaption for reports 50000-100000 on page open
+## Repo Layout
+| Path | Content |
+| --- | --- |
+| `app/` | Main app `Report-Overview`, IDs 50100..50149, namespace `ReportOverview` |
+| `test/` | Test app `Report-Overview Tests`, IDs 50150..50199, namespace `ReportOverview.Test`, depends on the main app and the Microsoft apps `Library Assert` and `Permissions Mock` |
+| `Report-Overview.code-workspace` | Multi-root workspace for both apps. Always open this file, not the repo root |
+| `resources/` | Screenshots used by `README.md` |
 
-### UI Architecture - Dashboard Pattern
-**Main Page (50100)**: Card page WITHOUT SourceTable (pure dashboard, no record context)
-- Filter controls trigger `ApplyFilters()` → calls `CurrPage.SubpageName.Page.SetFilters(params)`
-- Two ListPart subpages embedded with `UpdatePropagation = Both`
+`app/` and `test/` must stay siblings. A test folder nested inside the app folder gets compiled into the main app.
+With the repo root open, object-ID tools resolved a file in `test/` to the main app (range 50100..50149) or to no project at all. Open the workspace file and check the returned app name and range before using an ID.
 
-**Subpage Pattern**: Public `SetFilters()` procedure receives parameters, applies `Rec.SetRange()` locally
-```al
-procedure SetFilters(ShowFavoritesOnly: Boolean; CategoryFilter: Enum "Report Category")
-begin
-    Rec.Reset();
-    if ShowFavoritesOnly then
-        Rec.SetRange("Is Favorite", true);
-    if CategoryFilter <> CategoryFilter::" " then
-        Rec.SetRange(Category, CategoryFilter);
-    CurrPage.Update(false);
-end;
-```
+## Objects (app)
+| Object | Purpose |
+| --- | --- |
+| Table 50100 `Report Test` | One row per custom report: `Is Favorite`, `Category`, `List Page No.`, `Card Page No.`, `Test Information`. FlowField `Report Caption` (from `AllObjWithCaption`). The FlowFilters `Is Favorite Filter` and `Category Filter` are currently unused |
+| Enum 50100 `Report Category` | Extensible, value 0 is the blank value |
+| Codeunit 50100 `Report Overview Mgt.` | All business logic: `FillTestTable`, `GetListPageNo`, `GetCardPageNo`, `GetCustomReportCaption`, `OpenReportSettings` (not called by any page yet) |
+| Page 50100 `Report Overview` | Dashboard, Card page **without** SourceTable: filters, Quick Run Report, both parts |
+| Page 50102 `Report Overview Subpage` | ListPart on `Report Test` with inline buttons and the favorites actions |
+| Page 50101 `Report Selections Subpage` | ListPart on standard `Report Selections`, limited to sales and purchase document usages |
+| PermissionSet 50100 `Report Overview` | Covers every object of the app |
 
-### Inline Button Pattern (Critical UX Design)
-**DO NOT** use Page Actions for navigation. Use inline button fields:
-- Small-width fields (Width=1) with symbols: ▶ (Run), 🔗 (Link)
-- Non-editable with DrillDown triggers
-- Conditional styling: `StyleExpr = FieldValue <> 0` for visual feedback
-- Always include Caption + ToolTip (e.g., 'Run Report', 'Open List Page') to satisfy AA0218/AA0225
+## Patterns to Keep
+**Dashboard filters.** The dashboard has no record. A filter field calls the local `ApplyFilters()`, which calls `CurrPage.ReportOverviewSubpage.Page.SetFilters(ShowFavoritesOnly, CategoryFilter)`. The subpage applies `Rec.SetRange()` and `CurrPage.Update(false)`. Add new filters as a parameter of `SetFilters`.
 
-Example:
+**Inline buttons instead of row actions.** Running a report or opening a page for a line is an inline field, not a page action:
 ```al
 field(RunReportLink; '▶')
 {
@@ -47,6 +46,7 @@ field(RunReportLink; '▶')
     Width = 1;
     Style = Favorable;
     StyleExpr = Rec."Report ID" <> 0;
+
     trigger OnDrillDown()
     begin
         if Rec."Report ID" <> 0 then
@@ -54,173 +54,64 @@ field(RunReportLink; '▶')
     end;
 }
 ```
+Page actions exist only for commands that are not tied to one inline target: filter shortcuts and links to setup pages on the dashboard, `Add to Favorites` and `Remove from Favorites` on the subpage.
 
-### Report Selections Integration
-Page 50101 reads standard BC "Report Selections" table, calculates List/Card Page No. via `ReportOverviewMgt.GetListPageNo/GetCardPageNo()` in `OnAfterGetRecord()`. These procedures split Purchase/Sales logic into sub-procedures to keep cyclomatic complexity <8.
+**Favorite highlight.** A favorite line has `Style = Attention` with `StyleExpr = Rec."Is Favorite"` on `Report ID` and `Report Caption`. The client does not render a style on a Boolean field (checkbox), so never put it on `Is Favorite`.
 
-## Code Quality Standards
+**Report discovery.** `FillTestTable()` runs when the dashboard opens and inserts a row for every report in 50000..100000 that has none. It never changes or deletes existing rows. The range is set in that procedure.
 
-### NoImplicitWith Enabled
-Always use explicit `Rec.` prefix or `with` declarations.
+**Document pages for report selections.** `GetListPageNo` and `GetCardPageNo` delegate to one `case` procedure per area (`GetPurchaseListPageNo`, `GetSalesListPageNo`, ...). A new usage goes into the matching procedure and into `SourceTableView` of page 50101, a new area gets its own procedure.
 
-### ToolTips Required
-- All fields/actions MUST have ToolTips starting with "Specifies"
-- Empty captions on inline buttons need Caption + ToolTip (not `Locked = true`)
+## Code Conventions
+- Every file starts with `namespace ReportOverview;` (tests: `namespace ReportOverview.Test;`), followed by the `using` lines in alphabetical order. With a namespace, every referenced standard object needs its `using` (for example `System.Reflection` for `AllObjWithCaption`, `Microsoft.Foundation.Reporting` for `Report Selections`).
+- Business logic in the codeunit, pages only call it.
+- Guard clauses and early `exit` instead of nesting. Cyclomatic complexity below 8, cognitive complexity below 15.
+- Captions, ToolTips and labels in English only. This repo has no translation comments or translation files.
+- ToolTip and Caption on the table field, not repeated on the page field. Page fields based on a variable or expression need both. ToolTips start with "Specifies", end with a dot, at most 200 characters.
+- FlowFields are `Editable = false`. `DataClassification` only at table level. Tables have `DropDown` and `Brick` field groups.
+- Explicit `RunTrigger` on `Insert`, `Modify`, `Delete`, `DeleteAll`. Check the result of `Get()`. Built-in methods with parentheses (`CompanyName()`, `UserId()`). `IsEmpty()` instead of `Count() = 0`.
+- Enums instead of options, `CopyStr` for shorter targets, labels for `Error` and `Message`, `Confirm Management` instead of `Confirm()`.
+- Every new object goes into the permission set of its app. Entry order: table, tabledata, codeunit, page, query, report, xmlport.
+- Never guess names of standard objects, fields or enum values: look them up in the symbols or the BC source.
+- Analyzers in use: CodeCop, UICop and the ALCops analyzers (ApplicationCop, FormattingCop, LinterCop, TestAutomationCop). A warning that cannot be fixed gets a one-line comment with the reason.
 
-### Cyclomatic Complexity <8
-Split large case statements into separate procedures (see `GetPurchaseListPageNo/GetSalesListPageNo`).
+## Build, Publish, Test
+- Local test environment: Docker container `bc29` (BC 29.0 DE, `https://bc29`, instance `BC`, tenant `default`, user and password authentication). Start it with `docker start bc29` and wait until it is healthy. The launch configuration is `Local container bc29` in `app/.vscode/launch.json` and `test/.vscode/launch.json` (both are local files and not in Git).
+- The test app needs `Library Assert` and `Permissions Mock` installed. `Permissions Mock` is published in the container but not installed by default: `Sync-NAVApp` and `Install-NAVApp -ServerInstance BC -Tenant default -Name 'Permissions Mock'` inside the container.
+- Order: download symbols for both apps, build `app`, build `test`, publish `app`, publish `test`, run the tests.
+- In VS Code: download symbols and build both projects, publish each project, then run the tests in the Test Explorer.
+- From PowerShell: `Publish-BcContainerApp -containerName bc29 -appFile <file> -useDevEndpoint -credential <credential> -syncMode Add -skipVerification`, then `Run-TestsInBcContainer -containerName bc29 -credential <credential> -extensionId 10ed9cc9-71f9-4f51-ad65-41d62c632576 -detailed -usePublicWebBaseUrl -returnTrueIfAllPassed`.
+- Never write credentials into a file of this repo.
 
-### Permissions
-- Codeunit 50100: `Permissions = tabledata "Report Test" = ri;`
-- PermissionSet 50100 grants RIMD to tabledata, X to codeunits/pages
+## Tests (`test/`)
+| Object | Content |
+| --- | --- |
+| Codeunit 50150 `Report Overview Mgt. Test` | Page mapping per usage, report caption, `FillTestTable`, FlowField `Report Caption`, numbers of the `Report Category` values, filters of `OpenReportSettings` |
+| Codeunit 50151 `Report Overview Page Test` | Dashboard through `TestPage`: discovery on open, filters and filter actions, Quick Run Report, inline buttons, editing and adding lines, favorites actions, report selections part with all ten usages, navigation actions |
+| Codeunit 50153 `Report Overview Perm. Test` | Permission set `Report Overview`: the dashboard works with it and cannot be opened without it |
+| Report 50150 `Report Overview Test Report` | Custom report inside the scanned range. It has no request page and counts its runs |
+| Report 50151 `Test Report With Request Page` | Same with a request page |
+| Codeunit 50152 `Test Report Run Counter` | Single instance counter that the test reports increment |
+| PermissionSet 50150 `Report Overview Test` | Covers the test objects |
 
-## Extension Points
+Rules for tests:
+- `Subtype = Test`, `TestPermissions = Disabled`, comments `// [GIVEN]`, `// [WHEN]`, `// [THEN]`, assertions with `Library Assert`. After `asserterror` always `Assert.ExpectedError('<text>')`.
+- The test runner rolls data back per test **codeunit**, not per test. Every test starts with `Initialize()`, which removes the rows and resets the counters earlier tests left behind. `Initialize()` deletes all rows of `Report Test`: run the tests only with the default runner (isolation per codeunit) and never in an environment with real data.
+- The environment can contain other custom reports. Assert on specific rows (`FindReportLine`), never on totals. Rows 50197 to 50199 are entries without a report object, used for filter tests.
+- Never assert on translatable captions: the language of the test session depends on the environment (the container is a DE localization). The caption of the test report is locked for that reason.
+- Running a report without request page: use `Report Overview Test Report` and check `TestReportRunCounter.GetRunCount()`. A `ReportHandler` is not called for a report without request page.
+- Running a report with request page: use `Test Report With Request Page` with a `[RequestPageHandler]`. The test needs `[TransactionModel(TransactionModel::AutoCommit)]` and a call of `CommitPageTriggers()` right before the drilldown. Without the commit `Report.RunModal` fails with "An error occurred and the transaction is stopped", because the test has an open write transaction. The runner still rolls the committed data back at the end of the codeunit (checked in `bc29`). `Commit()` is allowed only through `CommitPageTriggers()`.
+- Opening a page from an inline button or a navigation action: `[PageHandler]` with a `TestPage` of the opened page and a counter. Use a small standard page (`Payment Terms`) where the page number is test data.
+- Actions of a ListPart are invoked through the part of the dashboard (`ReportOverview.ReportOverviewSubpage.AddToFavorites.Invoke()`), not on the ListPart opened on its own (TA0002).
+- A `TestPage` returns option filters as ordinal value (`3` for object type Report), other filters as text. Read enum fields with `AsInteger()`.
+- A value rejected by a `TableRelation`: `asserterror` on `SetValue`, then `Assert.ExpectedErrorCode('TestValidation')`. Use `GetUnusedObjectId()`: the Quick Run field only rejects an ID that no object of any type uses, the table fields `List Page No.` and `Card Page No.` also reject the ID of another object type.
+- Permissions: `StartWithBasicPermissions()` sets `D365 BASIC` through `Permissions Mock`, `Assign` adds a permission set. Stop the mock before the assertions, otherwise a failed assertion leaves it running for the following tests. A missing table permission has the error code `DB:ClientReadDenied`.
 
-### Report Category Enum (50100)
-Marked `Extensible = true`. Add custom categories via enumextension:
-```al
-enumextension 50100 "My Categories" extends "Report Category"
-{
-    value(50100; "Custom Category") { Caption = 'Custom Category'; }
-}
-```
-
-### Object Range Customization
-Modify `FillTestTable()` line 21: `SetRange("Object ID", YourStartID, YourEndID);`
-
-## Development Workflow
-
-### No Tests/Builds in Project
-Pure AL extension - compile via BC AL Language extension (Ctrl+Shift+B). No custom build scripts.
-
-### Key Files to Review
-- `src/page/ReportOverview.Page.al`: Filter architecture, inline button implementation
-- `src/codeunit/ReportOverviewMgt.Codeunit.al`: Business logic, cyclomatic complexity patterns
-- `src/table/ReportTest.Table.al`: Data model, FlowFields/FlowFilters usage
-- `CHANGELOG.md`: Version history (do NOT add planned features)
-
-## Common Tasks
-
-### Adding New Features
-1. Update `ReportTest` table if new fields needed
-2. Add to appropriate subpage (50102 for custom reports, 50101 for BC selections)
-3. Use inline buttons for actions - NEVER add to Page Actions area
-4. Update PermissionSet 50100 if new objects added
-
-### Filter Implementation
-Always use procedure-based pattern:
-1. Main page field OnValidate calls local `ApplyFilters()`
-2. `ApplyFilters()` calls `CurrPage.SubpageName.Page.SetFilters(params)`
-3. Subpage public procedure applies `Rec.SetRange()` and `CurrPage.Update(false)`
-
-### Avoiding Warnings
-- LC0041: Empty captions need Caption + ToolTip (inline buttons)
-- AA0218/AA0225: All fields need ToolTip and Caption
-- LC0077: Use `CompanyName()` and `UserId()` with parentheses
-
-### Critical LC Rules to Avoid
-**FlowFields & Properties**
-- LC0001: FlowFields must be Editable = false
-- LC0019: Don't duplicate DataClassification on fields if set on table
-- LC0042: Only use AutoCalcFields for FlowFields or Blob fields
-- LC0064: All table fields must have ToolTip property
-- LC0066: Don't duplicate ToolTip on both page and table fields
-- LC0074: Set FlowFilter fields using filtering methods, not direct assignment
-
-**Code Syntax & Best Practices**
-- LC0004: Set DrillDownPageId and LookupPageId on tables used in list pages
-- LC0005: Variable/method casing must match definition
-- LC0010: Keep cyclomatic complexity < 8, maintainability > 20
-- LC0015: All objects must be covered by permission sets
-- LC0021: Use ConfirmManagement.GetResponseOrDefault() instead of Confirm()
-- LC0023: Always provide DropDown and Brick fieldgroups on tables
-- LC0024: Procedure declarations must not end with semicolon
-- LC0031: Use ReadIsolation instead of deprecated LockTable()
-- LC0035: Explicitly set AllowInCustomizations for fields omitted on pages
-- LC0040: Explicitly set RunTrigger parameter on Insert/Modify/Delete
-- LC0051: Don't assign text to target with smaller size (use CopyStr)
-- LC0077: Always call methods with parentheses, even when no parameters
-- LC0084: Check Get() return values: `if not Rec.Get(...) then Error(...)`
-- LC0090: Keep Cognitive Complexity below threshold (typically 15)
-
-**Data Operations**
-- LC0008: Don't use filter operators in SetRange (use SetFilter instead)
-- LC0032: Clear(All) doesn't affect single instance codeunit globals
-- LC0044: Tables coupled with TransferFields must have matching fields
-- LC0050: SetFilter with unsupported operator in filter expression
-- LC0068: Missing permission to access tabledata (add to Permissions property)
-- LC0075: Correct number/type of arguments in .Get() method
-- LC0078: Temporary records should not trigger table triggers
-- LC0081: Use Rec.IsEmpty() instead of Rec.Count() = 0
-
-**Labels & Text**
-- LC0016: All objects/fields need Caption property
-- LC0026: ToolTip must end with a dot
-- LC0036: ToolTip should start with "Specifies"
-- LC0037: Don't use line breaks in ToolTip
-- LC0038: ToolTip should not exceed 200 characters
-- LC0041: Empty Captions should be Locked
-- LC0046: Labels with suffix Tok must be locked
-- LC0047: Locked labels must have suffix Tok
-
-**Modern AL Features**
-- LC0043: Use SecretText for credentials and sensitive values
-- LC0083: Use new Date/Time/DateTime methods for extracting parts
-- LC0086: Use PageStyle datatype instead of string literals
-- LC0087: Use IsNullGuid() to check for empty GUID values
-- LC0088: Use enum instead of Option types when applicable
-
-**Handling Warnings**
-- Use get_errors tool to check for warnings after making changes
-- If a warning cannot be resolved immediately, add a comment explaining why
-- Example of documented exception:
-  ```al
-  // LC0001: Empty procedure kept for future implementation as per design spec XYZ-123
-  procedure PlaceholderForFutureFeature()
-  begin
-  end;
-  ```
-
-### Code Structure and Readability
-- Use early exits (exit statements) whenever possible to avoid deep nesting
-- Guard clauses should be at the beginning of procedures to handle edge cases
-- Prefer flat code structure over deeply nested if-then-else blocks
-- Example:
-  ```al
-  // BAD - Nested conditions
-  procedure ProcessSalesLine(var SalesLine: Record "Sales Line")
-  begin
-      if SalesLine.Type <> SalesLine.Type::" " then begin
-          if SalesLine.Quantity > 0 then begin
-              if SalesLine."Location Code" <> '' then begin
-                  // Main logic here
-                  UpdateInventory(SalesLine);
-              end;
-          end;
-      end;
-  end;
-
-  // GOOD - Early exits with guard clauses
-  procedure ProcessSalesLine(var SalesLine: Record "Sales Line")
-  begin
-      if SalesLine.Type = SalesLine.Type::" " then
-          exit;
-      
-      if SalesLine.Quantity <= 0 then
-          exit;
-      
-      if SalesLine."Location Code" = '' then
-          exit;
-      
-      // Main logic here - no nesting needed
-      UpdateInventory(SalesLine);
-  end;
-  ```
-
-## Project Conventions
-
-- **No example reports**: Project removed sample reports, focuses on management tool only
-- **No SourceTable on dashboard**: Main page is pure dashboard without record context
-- **Favorites over search**: User prefers favorites/categories over full-text search
-- **Clean documentation**: README for features, CHANGELOG for releases, no planned features mentioned
-- **Screenshot placeholders**: README has 7 image placeholders in `resources/` folder
+## Not automatable
+List these for the user as manual test steps whenever a change touches them:
+- Look: `Style` and `StyleExpr` (favorite line, colored inline buttons), column widths, symbols, promoted actions and their categories.
+- Finding the dashboard through the search (`UsageCategory`).
+- Real report output: preview, print and download of a report with layout.
+- Deleting a line (a `TestPage` cannot delete), lookups of the ID fields, the filter pane of the parts.
+- Refresh behavior in the client (`UpdatePropagation`, enabled state of the favorites actions after a click).
+- Upgrade of an environment that already has data of an older version.

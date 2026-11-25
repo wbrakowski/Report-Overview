@@ -1,3 +1,7 @@
+namespace ReportOverview;
+
+using Microsoft.Foundation.Reporting;
+
 page 50101 "Report Selections Subpage"
 {
     ApplicationArea = All;

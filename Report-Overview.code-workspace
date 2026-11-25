@@ -1,0 +1,15 @@
+{
+    "folders": [
+        {
+            "name": "Report-Overview",
+            "path": "app"
+        },
+        {
+            "name": "Report-Overview Tests",
+            "path": "test"
+        }
+    ],
+    "settings": {
+        "al.symbolsCountryRegion": "de"
+    }
+}

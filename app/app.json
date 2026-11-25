@@ -13,18 +13,18 @@
   "dependencies": [
   ],
   "screenshots": [],
-     "platform": "27.0.0.0",
-  "application": "27.0.0.0",
+  "platform": "29.0.0.0",
+  "application": "29.0.0.0",
   "idRanges": [
     {
       "from": 50100,
       "to": 50149
     }
   ],
-   "features": [
+  "features": [
     "NoImplicitWith"
   ],
-  "runtime": "16.0",
+  "runtime": "18.0",
   "target": "Cloud",
   "contextSensitiveHelpUrl": "https://github.com/wbrakowski/Report-Overview/blob/master/README.md"
 }
